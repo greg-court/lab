@@ -17,6 +17,8 @@ spec:
       containers:
         - image: nginx
           name: nginx
+          command: ['/bin/bash', '-c'] # override the default command
+          args: ['sleep 5; exit 1'] # simulate a failure
   strategy:
     type: RollingUpdate
     rollingUpdate:
