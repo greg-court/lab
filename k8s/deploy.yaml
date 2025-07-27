@@ -2,18 +2,23 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: test
-  name: test
+    app: nginx-test
+  name: nginx-test
 spec:
   replicas: 10
   selector:
     matchLabels:
-      app: test
+      app: nginx-test
   template:
     metadata:
       labels:
-        app: test
+        app: nginx-test
     spec:
       containers:
         - image: nginx
           name: nginx
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 2
+      maxSurge: 2
