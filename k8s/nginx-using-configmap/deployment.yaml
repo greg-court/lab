@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configmap-frontend
+  labels:
+    app: configmap-frontend
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: configmap-frontend
+  template:
+    metadata:
+      labels:
+        app: configmap-frontend
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          # Render template, then start nginx
+          command: ['/bin/sh', '-c']
+          args:
+            - >
+              envsubst < /usr/share/nginx/html/index.template.html
+              > /usr/share/nginx/html/index.html &&
+              nginx -g 'daemon off;';
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: html
+              mountPath: /usr/share/nginx/html/index.template.html
+              subPath: index.template.html
+          resources: {}
+      volumes:
+        - name: html
+          configMap:
+            name: frontend-html
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: configmap-frontend
+spec:
+  selector:
+    app: configmap-frontend
+  ports:
+    - port: 80
+      targetPort: 80
