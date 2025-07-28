@@ -1,0 +1,9 @@
+resources:
+  - deployment.yaml
+
+configMapGenerator:
+  - name: site-content
+    files:
+      - sites/site-one.html
+      - sites/site-two.html
+      - nginx.conf

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multisite-nginx
+  labels:
+    app: multisite-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multisite-nginx
+  template:
+    metadata:
+      labels:
+        app: multisite-nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          volumeMounts:
+            - name: site-content
+              mountPath: /usr/share/nginx/html/site-one/index.html
+              subPath: site-one.html
+            - name: site-content
+              mountPath: /usr/share/nginx/html/site-two/index.html
+              subPath: site-two.html
+            - name: site-content
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          ports:
+            - containerPort: 80
+          resources:
+      volumes:
+        - name: site-content
+          configMap:
+            name: site-content
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multisite-nginx
+spec:
+  selector:
+    app: multisite-nginx
+  type: LoadBalancer
+  ports:
+    - port: 8914
+      targetPort: 80
