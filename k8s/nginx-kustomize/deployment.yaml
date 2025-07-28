@@ -48,5 +48,5 @@ spec:
   selector:
     app: kustomize-frontend
   ports:
-    - port: 8912
+    - port: 8913
       targetPort: 80
