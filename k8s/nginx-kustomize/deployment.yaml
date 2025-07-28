@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kustomize-frontend
+  labels:
+    app: kustomize-frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kustomize-frontend
+  template:
+    metadata:
+      labels:
+        app: kustomize-frontend
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          command: ['/bin/sh', '-c']
+          args:
+            - >
+              apk add --no-cache gettext &&
+              envsubst < /usr/share/nginx/html/index.template.html
+              > /usr/share/nginx/html/index.html &&
+              nginx -g 'daemon off;';
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: html
+              mountPath: /usr/share/nginx/html/index.template.html
+              subPath: index.template.html
+          resources:
+      volumes:
+        - name: html
+          configMap:
+            name: frontend-html
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kustomize-frontend
+spec:
+  type: LoadBalancer
+  selector:
+    app: kustomize-frontend
+  ports:
+    - port: 8912
+      targetPort: 80

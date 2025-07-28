@@ -5,7 +5,7 @@ metadata:
   labels:
     app: configmap-frontend
 spec:
-  replicas: 5
+  replicas: 3
   selector:
     matchLabels:
       app: configmap-frontend
@@ -44,8 +44,9 @@ kind: Service
 metadata:
   name: configmap-frontend
 spec:
+  type: LoadBalancer
   selector:
     app: configmap-frontend
   ports:
-    - port: 80
+    - port: 8912
       targetPort: 80
